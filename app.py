@@ -1,4 +1,4 @@
-#!/usr/bin/env python3 
+#!/usr/bin/env python3  
 import os
 import scapy.all as scapy
 import socket
@@ -6,7 +6,7 @@ import re
 import requests
 import platform
 import subprocess
-from flask import Flask, render_template
+from flask import Flask, render_template, jsonify  # Adăugăm jsonify pentru a returna JSON
 
 # Inițializează aplicația Flask
 app = Flask(__name__)
@@ -73,7 +73,7 @@ def get_default_gateway():
         ip_address = socket.gethostbyname(socket.gethostname())
         return ip_address + "/24"
     except socket.error:
-        return "192.168.50.1/24"
+        return "192.168.1.1/24"
 
 # Ruta principală a aplicației web
 @app.route('/')
@@ -102,6 +102,16 @@ def index():
         })
 
     return render_template('index.html', wifi_details=wifi_details, devices=devices)
+
+# Adăugăm o rută pentru /api/route
+@app.route('/api/route', methods=['GET'])
+def api_route():
+    # Aici poți adăuga orice logică dorești
+    response = {
+        "message": "This is the response for /api/route",
+        "status": "success"
+    }
+    return jsonify(response)  # Returnează un răspuns JSON
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
