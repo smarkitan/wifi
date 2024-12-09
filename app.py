@@ -1,10 +1,9 @@
-#!/usr/bin/env python3   
+#!/usr/bin/env python3
 import os
 import scapy.all as scapy
 import socket
 import requests
 import platform
-import subprocess
 from flask import Flask, render_template, jsonify
 
 # Inițializează aplicația Flask
@@ -14,19 +13,27 @@ app = Flask(__name__)
 def get_wifi_details():
     try:
         if platform.system() == "Linux":
-            # Folosim comanda nmcli pentru a obține detalii despre rețeaua Wi-Fi
-            result = subprocess.check_output(["nmcli", "-t", "-f", "active,ssid,bssid,signal,mode", "dev", "wifi"], text=True, stderr=subprocess.PIPE)
             details = {}
-            lines = result.splitlines()
-            for line in lines:
-                if line.startswith('yes'):  # Identifică rețeaua activă
-                    parts = line.split(":")
-                    details["SSID"] = parts[1]
-                    details["Signal"] = parts[3]  # Puterea semnalului
-                    break
-            # Adăugăm un print pentru a verifica datele obținute
+            # Căutăm fișierele de rețea în /sys/class/net
+            for interface in os.listdir("/sys/class/net/"):
+                if interface.startswith("wlan"):  # Identificăm interfețele wireless
+                    # Citim fișierele pentru detalii despre rețea
+                    with open(f"/sys/class/net/{interface}/operstate", "r") as f:
+                        state = f.read().strip()
+                    if state == "up":
+                        details["SSID"] = interface  # Numele interfeței WLAN
+                        # Putem adăuga și alte informații, dacă sunt disponibile
+                        details["Signal"] = "Signal Strength info unavailable"
+                        break
+
+            # Dacă nu s-a găsit niciun detaliu, se întoarce Unknown
+            if not details:
+                details["SSID"] = "Unknown"
+                details["Signal"] = "Unknown"
+                
             print(f"WiFi Details: {details}")
             return details
+
         else:
             return {"SSID": "Unknown", "Description": "Unknown"}
     except Exception as e:
