@@ -2,7 +2,6 @@
 import os
 import scapy.all as scapy
 import socket
-import re
 import requests
 import platform
 import subprocess
@@ -15,16 +14,16 @@ app = Flask(__name__)
 def get_wifi_details():
     try:
         if platform.system() == "Linux":
-            # Folosim comanda `iwconfig` pentru a obține detalii despre rețeaua Wi-Fi
-            result = subprocess.check_output(["iwconfig"], text=True, stderr=subprocess.PIPE)
+            # Folosim comanda nmcli pentru a obține detalii despre rețeaua Wi-Fi
+            result = subprocess.check_output(["nmcli", "-t", "-f", "active,ssid,bssid,signal,mode", "dev", "wifi"], text=True, stderr=subprocess.PIPE)
             details = {}
-            for line in result.split("\n"):
-                if "ESSID" in line:
-                    details["SSID"] = re.search(r'ESSID:"(.*)"', line).group(1)
-                elif "Frequency" in line:
-                    details["Band"] = re.search(r'Frequency:(\S+)', line).group(1)
-                elif "Signal level" in line:
-                    details["Signal"] = re.search(r'Signal level=(\S+)', line).group(1)
+            lines = result.splitlines()
+            for line in lines:
+                if line.startswith('yes'):  # Identifică rețeaua activă
+                    parts = line.split(":")
+                    details["SSID"] = parts[1]
+                    details["Signal"] = parts[3]  # Puterea semnalului
+                    break
             # Adăugăm un print pentru a verifica datele obținute
             print(f"WiFi Details: {details}")
             return details
@@ -104,12 +103,11 @@ def index():
 # Adăugăm o rută pentru /api/route
 @app.route('/api/route', methods=['GET'])
 def api_route():
-    # Aici poți adăuga orice logică dorești
     response = {
         "message": "This is the response for /api/route",
         "status": "success"
     }
-    return jsonify(response)  # Returnează un răspuns JSON
+    return jsonify(response)
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
