@@ -9,16 +9,29 @@ import subprocess
 from flask import Flask, render_template
 import logging
 logging.basicConfig(level=logging.DEBUG)
-
 # Inițializează aplicația Flask
 app = Flask(__name__)
 
 # Funcție pentru a obține SSID-ul curent și detalii suplimentare despre rețea
 def get_wifi_details():
     try:
+        if platform.system() == "Windows":
+            result = subprocess.check_output(["netsh", "wlan", "show", "interfaces"], text=True, shell=True)
+            details = {}
+            for line in result.split("\n"):
+                if "SSID" in line and "BSSID" not in line:
+                    details["SSID"] = line.split(":")[1].strip()
+                elif "Description" in line:
+                    details["Description"] = line.split(":")[1].strip()
+                elif "Band" in line:
+                    details["Band"] = line.split(":")[1].strip()
+                elif "Radio type" in line:
+                    details["Radio Type"] = line.split(":")[1].strip()
+                elif "Signal" in line:
+                    details["Signal"] = line.split(":")[1].strip()
+            return details
 
-
-   
+        else:
             return {"SSID": "Unknown", "Description": "Unknown"}
     except Exception as e:
         return {"SSID": "Unknown", "Description": str(e)}
@@ -61,9 +74,10 @@ def get_default_gateway():
         ip_address = socket.gethostbyname(socket.gethostname())
         return ip_address + "/24"
     except socket.error:
-        return "192.168.50.1/24"
+        return "192.168.1.1/24"
 
 # Ruta principală a aplicației web
+# În funcția index
 @app.route('/')
 def index():
     wifi_details = get_wifi_details()
