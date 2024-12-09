@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3 
 import os
 import scapy.all as scapy
 import socket
@@ -67,20 +67,12 @@ def get_device_icon(hostname, vendor):
     else:
         return device_types["unknown"]
 
-# Funcție pentru a obține Default Gateway din ipconfig
+# Funcție pentru a obține Default Gateway folosind socket
 def get_default_gateway():
     try:
-        if platform.system() == "Windows":
-            result = subprocess.check_output("ipconfig", text=True, shell=True)
-            match = re.search(r"Default Gateway . . . . . . . . : (\d+\.\d+\.\d+\.\d+)", result)
-        else:
-            result = subprocess.check_output("ip route show", text=True, shell=True)
-            match = re.search(r"default via (\d+\.\d+\.\d+\.\d+)", result)
-        if match:
-            return match.group(1) + "/24"
-        else:
-            return "192.168.50.1/24"
-    except subprocess.CalledProcessError:
+        ip_address = socket.gethostbyname(socket.gethostname())
+        return ip_address + "/24"
+    except socket.error:
         return "192.168.50.1/24"
 
 # Ruta principală a aplicației web
