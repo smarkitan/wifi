@@ -6,7 +6,7 @@ import re
 import requests
 import platform
 import subprocess
-from flask import Flask, render_template, jsonify  # Adăugăm jsonify pentru a returna JSON
+from flask import Flask, render_template, jsonify
 
 # Inițializează aplicația Flask
 app = Flask(__name__)
@@ -14,25 +14,20 @@ app = Flask(__name__)
 # Funcție pentru a obține SSID-ul curent și detalii suplimentare despre rețea
 def get_wifi_details():
     try:
-        if platform.system() == "Windows":
-            result = subprocess.check_output(["netsh", "wlan", "show", "interfaces"], text=True, shell=True)
+        if platform.system() == "Linux":
+            # Folosim comanda `iwconfig` pentru a obține detalii despre rețeaua Wi-Fi
+            result = subprocess.check_output(["iwconfig"], text=True, stderr=subprocess.PIPE)
             details = {}
             for line in result.split("\n"):
-                if "SSID" in line and "BSSID" not in line:
-                    details["SSID"] = line.split(":")[1].strip()
-                elif "Description" in line:
-                    details["Description"] = line.split(":")[1].strip()
-                elif "Band" in line:
-                    details["Band"] = line.split(":")[1].strip()
-                elif "Radio type" in line:
-                    details["Radio Type"] = line.split(":")[1].strip()
-                elif "Signal" in line:
-                    details["Signal"] = line.split(":")[1].strip()
-
+                if "ESSID" in line:
+                    details["SSID"] = re.search(r'ESSID:"(.*)"', line).group(1)
+                elif "Frequency" in line:
+                    details["Band"] = re.search(r'Frequency:(\S+)', line).group(1)
+                elif "Signal level" in line:
+                    details["Signal"] = re.search(r'Signal level=(\S+)', line).group(1)
             # Adăugăm un print pentru a verifica datele obținute
             print(f"WiFi Details: {details}")
             return details
-
         else:
             return {"SSID": "Unknown", "Description": "Unknown"}
     except Exception as e:
