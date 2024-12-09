@@ -7,6 +7,8 @@ import requests
 import platform
 import subprocess
 from flask import Flask, render_template
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
 # Inițializează aplicația Flask
 app = Flask(__name__)
@@ -66,9 +68,12 @@ def get_default_gateway():
 def index():
     wifi_details = get_wifi_details()
     ip_add_range_entered = get_default_gateway()
+
     try:
+        logging.debug(f"Scannare IP range: {ip_add_range_entered}")
         result, unanswered = scapy.srp(scapy.Ether(dst="ff:ff:ff:ff:ff:ff") / scapy.ARP(pdst=ip_add_range_entered), timeout=2, verbose=0)
     except Exception as e:
+        logging.error(f"Error în scanare: {e}")
         result = []
 
     devices = []
@@ -87,6 +92,7 @@ def index():
             "icon_class": icon_class
         })
 
+    logging.debug(f"Dispozitive detectate: {devices}")
     return render_template('index.html', wifi_details=wifi_details, devices=devices)
 
 if __name__ == "__main__":
