@@ -29,16 +29,19 @@ def get_wifi_details():
                 elif "Signal" in line:
                     details["Signal"] = line.split(":")[1].strip()
             return details
+        elif platform.system() == "Linux":
+            result = subprocess.check_output("nmcli -t -f active,ssid dev wifi", text=True, shell=True)
+            ssid = [line.split(":")[1] for line in result.split("\n") if line.startswith("yes")]
+            return {"SSID": ssid[0] if ssid else "Unknown", "Description": "Linux Wi-Fi"}
         else:
-            return {"SSID": "Unknown", "Description": "Unknown", "Band": "Unknown", "Radio Type": "Unknown", "Signal": "Unknown"}
+            return {"SSID": "Unknown", "Description": "Unknown"}
     except Exception as e:
-        print(f"Could not determine network details: {e}")
-        return {"SSID": "Unknown", "Description": "Unknown", "Band": "Unknown", "Radio Type": "Unknown", "Signal": "Unknown"}
+        return {"SSID": "Unknown", "Description": str(e)}
 
 # Funcție pentru a obține vendorul pe baza MAC-ului
 def get_vendor(mac_address):
     try:
-        response = requests.get(f"https://api.macvendors.com/{mac_address}")
+        response = requests.get(f"https://api.macvendors.com/{mac_address}", timeout=5)
         return response.text if response.status_code == 200 else "Unknown Vendor"
     except requests.exceptions.RequestException:
         return "Unknown Vendor"
@@ -67,55 +70,44 @@ def get_device_icon(hostname, vendor):
     else:
         return device_types["unknown"]
 
-# Funcție pentru a obține numele routerului din IP
-def get_router_name(ip_address):
-    try:
-        hostname = socket.gethostbyaddr(ip_address)[0]
-        return hostname
-    except socket.herror:
-        return "Unknown Router"
-
 # Funcție pentru a obține Default Gateway din ipconfig
 def get_default_gateway():
     try:
-        # Rulează comanda ipconfig pe Windows și obține ieșirea
-        result = subprocess.check_output("ifconfig", text=True, shell=True)
-        # Căutăm linia care conține "Default Gateway"
-        match = re.search(r"Default Gateway . . . . . . . . : (\d+\.\d+\.\d+\.\d+)", result)
+        if platform.system() == "Windows":
+            result = subprocess.check_output("ipconfig", text=True, shell=True)
+            match = re.search(r"Default Gateway . . . . . . . . : (\d+\.\d+\.\d+\.\d+)", result)
+        else:
+            result = subprocess.check_output("ip route show", text=True, shell=True)
+            match = re.search(r"default via (\d+\.\d+\.\d+\.\d+)", result)
         if match:
-            # Returnăm gateway-ul cu sufixul "/24"
             return match.group(1) + "/24"
         else:
-            return "192.168.50.1/24"  # Valoare implicită
+            return "192.168.1.1/24"
     except subprocess.CalledProcessError:
-        return "192.168.50.1/24"  # Valoare implicită în caz de eroare
+        return "192.168.1.1/24"
 
 # Ruta principală a aplicației web
 @app.route('/')
 def index():
-    # Obține detaliile rețelei Wi-Fi
     wifi_details = get_wifi_details()
-
-    # Obține gama de IP din Default Gateway
     ip_add_range_entered = get_default_gateway()
+    try:
+        result, unanswered = scapy.srp(scapy.Ether(dst="ff:ff:ff:ff:ff:ff") / scapy.ARP(pdst=ip_add_range_entered), timeout=2, verbose=0)
+    except Exception as e:
+        result = []
 
-    # Trimite cererea ARP
-    result, unanswered = scapy.srp(scapy.Ether(dst="ff:ff:ff:ff:ff:ff") / scapy.ARP(pdst=ip_add_range_entered), timeout=2, verbose=0)
-    arp_result = result.res if result else []
-
-    # Creează lista de dispozitive pentru a fi afișată
     devices = []
-    for sent, received in arp_result:
+    for sent, received in result:
         try:
             hostname = socket.gethostbyaddr(received.psrc)[0]
         except socket.herror:
             hostname = "Unknown"
-        
+
         vendor = get_vendor(received.hwsrc)
         icon_class = get_device_icon(hostname, vendor)
         devices.append({
-            "hostname": hostname if hostname != 'Unknown' else vendor,
-            "vendor": vendor if vendor != 'Unknown Vendor' else 'Unknown Vendor',
+            "hostname": hostname if hostname != "Unknown" else vendor,
+            "vendor": vendor if vendor != "Unknown Vendor" else "Unknown Vendor",
             "ip_address": received.psrc,
             "icon_class": icon_class
         })
