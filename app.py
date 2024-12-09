@@ -9,36 +9,6 @@ from flask import Flask, render_template, jsonify
 # Inițializează aplicația Flask
 app = Flask(__name__)
 
-# Funcție pentru a obține SSID-ul curent și detalii suplimentare despre rețea
-def get_wifi_details():
-    try:
-        if platform.system() == "Linux":
-            details = {}
-            # Căutăm fișierele de rețea în /sys/class/net
-            for interface in os.listdir("/sys/class/net/"):
-                if interface.startswith("wlan"):  # Identificăm interfețele wireless
-                    # Citim fișierele pentru detalii despre rețea
-                    with open(f"/sys/class/net/{interface}/operstate", "r") as f:
-                        state = f.read().strip()
-                    if state == "up":
-                        details["SSID"] = interface  # Numele interfeței WLAN
-                        # Putem adăuga și alte informații, dacă sunt disponibile
-                        details["Signal"] = "Signal Strength info unavailable"
-                        break
-
-            # Dacă nu s-a găsit niciun detaliu, se întoarce Unknown
-            if not details:
-                details["SSID"] = "Unknown"
-                details["Signal"] = "Unknown"
-                
-            print(f"WiFi Details: {details}")
-            return details
-
-        else:
-            return {"SSID": "Unknown", "Description": "Unknown"}
-    except Exception as e:
-        return {"SSID": "Unknown", "Description": str(e)}
-
 # Funcție pentru a obține vendorul pe baza MAC-ului
 def get_vendor(mac_address):
     try:
@@ -71,19 +41,15 @@ def get_device_icon(hostname, vendor):
     else:
         return device_types["unknown"]
 
-# Funcție pentru a obține Default Gateway folosind socket
-def get_default_gateway():
-    try:
-        ip_address = socket.gethostbyname(socket.gethostname())
-        return ip_address + "/24"
-    except socket.error:
-        return "192.168.1.1/24"
+# Funcție pentru a obține gama de IP-uri pentru rețeaua locală
+def get_ip_range():
+    return "192.168.50.1/24"
 
 # Ruta principală a aplicației web
 @app.route('/')
 def index():
-    wifi_details = get_wifi_details()
-    ip_add_range_entered = get_default_gateway()
+    ip_add_range_entered = get_ip_range()
+    
     try:
         result, unanswered = scapy.srp(scapy.Ether(dst="ff:ff:ff:ff:ff:ff") / scapy.ARP(pdst=ip_add_range_entered), timeout=2, verbose=0)
     except Exception as e:
@@ -102,10 +68,11 @@ def index():
             "hostname": hostname if hostname != "Unknown" else vendor,
             "vendor": vendor if vendor != "Unknown Vendor" else "Unknown Vendor",
             "ip_address": received.psrc,
+            "mac_address": received.hwsrc,
             "icon_class": icon_class
         })
 
-    return render_template('index.html', wifi_details=wifi_details, devices=devices)
+    return render_template('index.html', devices=devices)
 
 # Adăugăm o rută pentru /api/route
 @app.route('/api/route', methods=['GET'])
