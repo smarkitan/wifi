@@ -29,10 +29,7 @@ def get_wifi_details():
                 elif "Signal" in line:
                     details["Signal"] = line.split(":")[1].strip()
             return details
-        elif platform.system() == "Linux":
-            result = subprocess.check_output("nmcli -t -f active,ssid dev wifi", text=True, shell=True)
-            ssid = [line.split(":")[1] for line in result.split("\n") if line.startswith("yes")]
-            return {"SSID": ssid[0] if ssid else "Unknown", "Description": "Linux Wi-Fi"}
+
         else:
             return {"SSID": "Unknown", "Description": "Unknown"}
     except Exception as e:
@@ -82,9 +79,9 @@ def get_default_gateway():
         if match:
             return match.group(1) + "/24"
         else:
-            return "192.168.1.1/24"
+            return "192.168.50.1/24"
     except subprocess.CalledProcessError:
-        return "192.168.1.1/24"
+        return "192.168.50.1/24"
 
 # Ruta principală a aplicației web
 @app.route('/')
