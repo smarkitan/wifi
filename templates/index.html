@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARP Scan Results</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js" crossorigin="anonymous"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        .network-container {
+            position: relative;
+            display: inline-block;
+            margin: 0 auto;
+        }
+        .router {
+            font-size: 80px;
+            color: #555;
+        }
+        .vendor-name {
+            margin-top: 5px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+        }
+        .devices {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            gap: 50px;
+            position: relative;
+        }
+        .device {
+            position: relative;
+            text-align: center;
+        }
+        .device i {
+            font-size: 50px;
+            color: #777;
+        }
+        .device .device-name {
+            margin-top: 10px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .device .vendor-name {
+            margin-top: 5px;
+            font-size: 12px;
+            color: #888;
+        }
+        .device .ip-address {
+            margin-top: 5px;
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h1>{{ wifi_details['SSID'] }}</h1>
+    <p><strong>Name:</strong> {{ wifi_details['Description'] }}</p>
+    <p><strong>Band:</strong> {{ wifi_details['Band'] }}</p>
+    <p><strong>Radio Type:</strong> {{ wifi_details['Radio Type'] }}</p>
+    <p><strong>Signal:</strong> {{ wifi_details['Signal'] }}</p>
+
+    <div class="network-container">
+        <div class="router">
+            <div class="vendor-name">{{ wifi_details['SSID'] }}</div>
+            <i class="fa-solid fa-wifi"></i>
+        </div>
+        <div class="devices">
+            {% for device in devices %}
+            <div class="device">
+                <div class="line"></div>
+                <i class="{{ device.icon_class }}"></i>
+                <div class="device-name">{{ device.hostname }}</div>
+                <div class="vendor-name">{{ device.vendor }}</div>
+                <div class="ip-address">{{ device.ip_address }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>
