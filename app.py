@@ -1,4 +1,4 @@
-#!/usr/bin/env python3  
+#!/usr/bin/env python3   
 import os
 import scapy.all as scapy
 import socket
@@ -28,6 +28,9 @@ def get_wifi_details():
                     details["Radio Type"] = line.split(":")[1].strip()
                 elif "Signal" in line:
                     details["Signal"] = line.split(":")[1].strip()
+
+            # Adăugăm un print pentru a verifica datele obținute
+            print(f"WiFi Details: {details}")
             return details
 
         else:
