@@ -79,7 +79,7 @@ def get_router_name(ip_address):
 def get_default_gateway():
     try:
         # Rulează comanda ipconfig pe Windows și obține ieșirea
-        result = subprocess.check_output("ipconfig", text=True, shell=True)
+        result = subprocess.check_output("ifconfig", text=True, shell=True)
         # Căutăm linia care conține "Default Gateway"
         match = re.search(r"Default Gateway . . . . . . . . : (\d+\.\d+\.\d+\.\d+)", result)
         if match:
