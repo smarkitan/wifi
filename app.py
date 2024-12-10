@@ -13,7 +13,8 @@ from ping3 import ping
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)  # Permite CORS pentru toate originile
+CORS(app, resources={r"/*": {"origins": "https://wifidevices.netlify.app/"}})
+
 
 
 # Funcție pentru a obține SSID-ul curent și detalii suplimentare despre rețea
