@@ -5,58 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ARP Scan Results</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js" crossorigin="anonymous"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 20px;
-        }
-        .network-container {
-            position: relative;
-            display: inline-block;
-            margin: 0 auto;
-        }
-        .router {
-            font-size: 80px;
-            color: #555;
-        }
-        .vendor-name {
-            margin-top: 5px;
-            font-size: 14px;
-            font-weight: bold;
-            color: #333;
-        }
-        .devices {
-            display: flex;
-            justify-content: center;
-            margin-top: 20px;
-            gap: 50px;
-            position: relative;
-        }
-        .device {
-            position: relative;
-            text-align: center;
-        }
-        .device i {
-            font-size: 50px;
-            color: #777;
-        }
-        .device .device-name {
-            margin-top: 10px;
-            font-size: 14px;
-            font-weight: bold;
-        }
-        .device .vendor-name {
-            margin-top: 5px;
-            font-size: 12px;
-            color: #888;
-        }
-        .device .ip-address {
-            margin-top: 5px;
-            font-size: 12px;
-            color: #666;
-        }
-    </style>
+    <link rel="stylesheet" href="app.css"> <!-- Include fișierul CSS -->
 </head>
 <body>
     <h1>{{ wifi_details['SSID'] }}</h1>
@@ -70,17 +19,77 @@
             <div class="vendor-name">{{ wifi_details['SSID'] }}</div>
             <i class="fa-solid fa-wifi"></i>
         </div>
+
         <div class="devices">
             {% for device in devices %}
             <div class="device">
-                <div class="line"></div>
                 <i class="{{ device.icon_class }}"></i>
                 <div class="device-name">{{ device.hostname }}</div>
                 <div class="vendor-name">{{ device.vendor }}</div>
                 <div class="ip-address">{{ device.ip_address }}</div>
+                <div class="open-ports">
+                    <strong>Open Ports:</strong> 
+                    {% if device.open_ports %}
+                        {{ device.open_ports | join(", ") }}
+                    {% else %}
+                        None
+                    {% endif %}
+                </div>
+                <button class="ping-button" onclick="pingDevice('{{ device.ip_address }}', this)">Ping</button>
+                <div class="ping-result" id="ping-result-{{ loop.index }}"></div>
             </div>
             {% endfor %}
         </div>
     </div>
+
+    <div class="wifi-passwords">
+        <h2>Saved Wi-Fi Passwords</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Wi-Fi Name</th>
+                    <th>Password</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for wifi in wifi_passwords %}
+                <tr>
+                    <td>{{ wifi.Name }}</td>
+                    <td>{{ wifi.Password }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function pingDevice(ip, button) {
+            const resultDiv = button.nextElementSibling;
+            resultDiv.textContent = "Pinging...";
+            button.disabled = true;
+
+            fetch('/ping', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ ip })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.output) {
+                    resultDiv.textContent = data.output;
+                } else {
+                    resultDiv.textContent = "Ping failed: " + (data.error || "Unknown error");
+                }
+            })
+            .catch(error => {
+                resultDiv.textContent = "Error: " + error.message;
+            })
+            .finally(() => {
+                button.disabled = false;
+            });
+        }
+    </script>
 </body>
 </html>
