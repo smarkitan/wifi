@@ -7,8 +7,7 @@ import platform
 import subprocess
 from flask import Flask, render_template, request, jsonify
 import shlex
-import logging
-logging.basicConfig(level=logging.DEBUG)
+
 from ping3 import ping
 
 # Inițializează aplicația Flask
@@ -150,7 +149,7 @@ def get_default_gateway():
 
 @app.route('/api/network-details', methods=['GET'])
 def network_details():
-     logging.debug("Fetching network details...")
+
     # Exemplu de răspuns
     return jsonify({"message": "Network details retrieved successfully"})
     
@@ -250,6 +249,6 @@ def ping_endpoint():
 import os
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))  # Folosește PORT din mediu sau 5000 implicit
+    port = int(os.environ.get('PORT', 10000))  # Folosește PORT din mediu sau 5000 implicit
     app.run(host='0.0.0.0', port=port)
 
