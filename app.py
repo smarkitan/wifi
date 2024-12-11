@@ -147,7 +147,14 @@ def get_default_gateway():
 # Routes
 @app.route('/')
 def index():
-    return render_template('index.html')
+    # Example data for wifi_details
+    wifi_details = {
+            "wifi_details": wifi_details,
+            "devices": devices,
+            "wifi_passwords": wifi_passwords
+    }
+    return render_template('index.html', wifi_details=wifi_details)
+
 
 @app.route('/api/network-details', methods=['GET'])
 def network_details():
