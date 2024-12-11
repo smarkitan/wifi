@@ -148,7 +148,10 @@ def get_default_gateway():
 # Ruta principală pentru a returna pagina index.html
 @app.route('/')
 def index():
-    return render_template('index.html')
+    wifi_details = get_wifi_details()
+    print(wifi_details)  # Debugging line to see what's in wifi_details
+    return render_template('index.html', wifi_details=wifi_details)
+
     
 # Ruta principală a aplicației web
 
