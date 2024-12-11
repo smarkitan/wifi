@@ -193,6 +193,10 @@ def network_details():
         "devices": devices,
         "wifi_passwords": wifi_passwords
     })
+    except Exception as e:
+        # Log the error for debugging purposes
+        print(f"Error in network_details route: {e}")
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/api/ping', methods=['GET'])
 def ping_endpoint():
