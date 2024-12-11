@@ -7,6 +7,7 @@ import platform
 import subprocess
 from flask import Flask, render_template, request, jsonify
 import shlex
+
 from ping3 import ping
 
 # Inițializează aplicația Flask
@@ -14,7 +15,6 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "https://wifidevices.netlify.app"}})
-
 
 # Funcție pentru a obține SSID-ul curent și detalii suplimentare despre rețea
 def get_wifi_details():
@@ -39,7 +39,6 @@ def get_wifi_details():
     except Exception as e:
         print(f"Could not determine network details: {e}")
         return {"SSID": "Unknown", "Description": "Unknown", "Band": "Unknown", "Radio Type": "Unknown", "Signal": "Unknown"}
-
 
 
 # Funcție pentru a obține parolele Wi-Fi salvate pe Windows
@@ -73,6 +72,7 @@ def get_wifi_passwords():
         print(f"Error fetching Wi-Fi passwords: {e}")
         return []
 
+
 # Funcție pentru a obține vendorul pe baza MAC-ului
 def get_vendor(mac_address):
     try:
@@ -80,6 +80,7 @@ def get_vendor(mac_address):
         return response.text if response.status_code == 200 else "Unknown Vendor"
     except requests.exceptions.RequestException:
         return "Unknown Vendor"
+
 
 # Funcție pentru a obține icoane pentru dispozitive
 def get_device_icon(hostname, vendor):
@@ -105,6 +106,7 @@ def get_device_icon(hostname, vendor):
     else:
         return device_types["unknown"]
 
+
 # Funcție pentru a obține numele routerului din IP
 def get_router_name(ip_address):
     try:
@@ -112,6 +114,7 @@ def get_router_name(ip_address):
         return hostname
     except socket.herror:
         return "Unknown Router"
+
 
 # Funcție pentru a scana porturile deschise pentru un IP dat
 def scan_ports(ip):
@@ -125,8 +128,9 @@ def scan_ports(ip):
             open_ports.append(port)
         sock.close()
     return open_ports
-# Funcție pentru a obține IP-ul gateway-ului implicit
 
+
+# Funcție pentru a obține IP-ul gateway-ului implicit
 def get_default_gateway():
     try:
         if platform.system() == "Windows":
@@ -145,10 +149,18 @@ def get_default_gateway():
         pass
     return None
 
-# Ruta principală a aplicației web
+
+# Ruta principală pentru a returna pagina index.html
+@app.route('/')
+def index():
+    return render_template('index.html')
+
 
 @app.route('/api/network-details', methods=['GET'])
 def network_details():
+    # Exemplu de răspuns
+    return jsonify({"message": "Network details retrieved successfully"})
+    
     # Obține detaliile rețelei Wi-Fi
     wifi_details = get_wifi_details()
 
@@ -193,6 +205,7 @@ def network_details():
         "wifi_passwords": wifi_passwords
     })
 
+
 @app.route('/api/ping', methods=['GET'])
 def ping_endpoint():
     ip = request.args.get('ip')
@@ -208,39 +221,19 @@ def ping_endpoint():
         # Rezultatul comenzii ping
         output = result.stdout
 
-        # Împărțim rezultatul pentru a extrage informațiile de interes
-        output_lines = output.splitlines()
-
-        # Extragem statisticile de ping din rezultat
-        stats_line = output_lines[-3]
-        stats_values = stats_line.split(", ")
-
-        # Împărțim și extragem timpii minimi, maximi și medii
-        min_time = stats_values[0].split("=")[1]
-        max_time = stats_values[1].split("=")[1]
-        avg_time = stats_values[2].split("=")[1]
-
-        # Returnează rezultatul într-un format similar cu cel din cmd
-        return jsonify({
-            "status": "success",
-            "output": output,
-            "ping_statistics": {
-                "min_time": min_time,
-                "max_time": max_time,
-                "avg_time": avg_time
-            }
-        })
-
+        # Împărțim rezultatul pentru a extrage informațiile necesare
+        if platform.system() == "Windows":
+            avg_ping_time = re.findall(r"Average = (\d+)ms", output)
+            if avg_ping_time:
+                return jsonify({"ping_result": avg_ping_time[0]})
+        elif platform.system() == "Linux":
+            avg_ping_time = re.findall(r"avg = (\d+\.\d+) ms", output)
+            if avg_ping_time:
+                return jsonify({"ping_result": avg_ping_time[0]})
     except subprocess.CalledProcessError as e:
-        return jsonify({
-            "status": "failure",
-            "output": f"Ping failed: {e.stderr}"
-        })
-    except Exception as e:
-        return jsonify({
-            "status": "failure",
-            "output": str(e)
-        })
+        return jsonify({"error": f"Ping failed: {e}"})
+
+    return jsonify({"error": "Could not retrieve ping result"})
 
 
 if __name__ == '__main__':
