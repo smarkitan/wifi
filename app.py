@@ -149,9 +149,9 @@ def get_default_gateway():
 def index():
     # Example data for wifi_details
     wifi_details = {
-            "wifi_details": wifi_details,
-            "devices": devices,
-            "wifi_passwords": wifi_passwords
+            "wifi_details": get_wifi_details(),
+            "devices": [],
+            "wifi_passwords": get_wifi_passwords()
     }
     return render_template('index.html', wifi_details=wifi_details)
 
