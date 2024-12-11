@@ -232,44 +232,7 @@ def ping_endpoint():
 
 @app.route('/')
 def index():
-    # Obține detaliile rețelei Wi-Fi
-    wifi_details = get_wifi_details()
-
-    # Obține IP-ul gateway-ului implicit
-    gateway_ip = get_default_gateway()
-    if gateway_ip:
-        ip_add_range_entered = f"{gateway_ip}/24"
-    else:
-        ip_add_range_entered = "192.168.0.1/24"  # Dacă nu se poate obține gateway-ul, folosim valoarea default
-
-    # Trimite cererea ARP
-    result, unanswered = scapy.srp(scapy.Ether(dst="ff:ff:ff:ff:ff:ff") / scapy.ARP(pdst=ip_add_range_entered), timeout=4, verbose=0)
-    arp_result = result.res if result else []
-
-    # Creează lista de dispozitive pentru a fi afișată
-    devices = []
-    for sent, received in arp_result:
-        try:
-            hostname = socket.gethostbyaddr(received.psrc)[0]
-        except socket.herror:
-            hostname = "Unknown"
-        
-        vendor = get_vendor(received.hwsrc)
-        icon_class = get_device_icon(hostname, vendor)
-        open_ports = scan_ports(received.psrc)  # Scanează porturile deschise
-
-        devices.append({
-            "hostname": hostname if hostname != 'Unknown' else vendor,
-            "vendor": vendor if vendor != 'Unknown Vendor' else 'Unknown Vendor',
-            "ip_address": received.psrc,
-            "icon_class": icon_class,
-            "open_ports": open_ports  # Adăugăm porturile deschise
-        })
-
-    # Obține parolele Wi-Fi salvate
-    wifi_passwords = get_wifi_passwords()
-
-    # Transmite variabilele la șablonul HTML
+      # Transmite variabilele la șablonul HTML
     return render_template('index.html', devices=devices, wifi_passwords=wifi_passwords)
 
 if __name__ == '__main__':
