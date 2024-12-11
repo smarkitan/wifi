@@ -13,9 +13,7 @@ from ping3 import ping
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "https://wifidevices.netlify.app/"}})
-
-
+CORS(app, resources={r"/*": {"origins": "https://wifidevices.netlify.app"}})
 
 # Funcție pentru a obține SSID-ul curent și detalii suplimentare despre rețea
 def get_wifi_details():
@@ -150,6 +148,9 @@ def get_default_gateway():
 
 @app.route('/api/network-details', methods=['GET'])
 def network_details():
+    # Exemplu de răspuns
+    return jsonify({"message": "Network details retrieved successfully"})
+    
     # Obține detaliile rețelei Wi-Fi
     wifi_details = get_wifi_details()
 
