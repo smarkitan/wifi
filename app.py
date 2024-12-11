@@ -7,7 +7,6 @@ import platform
 import subprocess
 from flask import Flask, render_template, request, jsonify
 import shlex
-import psutil
 
 from ping3 import ping
 
@@ -133,14 +132,21 @@ def scan_ports(ip):
 
 # Funcție pentru a obține IP-ul gateway-ului implicit
 def get_default_gateway():
-    gateways = psutil.net_if_addrs()
-    # Try to find the default gateway based on the interfaces
-    # This depends on your specific network configuration, and may need customization
-    for interface, addrs in gateways.items():
-        for addr in addrs:
-            if addr.family == psutil.AF_INET:  # Ensure we're dealing with IPv4 addresses
-                if addr.address == "0.0.0.0":
-                    return addr.address  # You can return the relevant address here
+    try:
+        if platform.system() == "Windows":
+            result = subprocess.check_output("ipconfig", text=True)
+            # Căutăm linia cu 'Gateway Default' și extragem adresa IP
+            match = re.search(r"Default Gateway.*: (\d+\.\d+\.\d+\.\d+)", result)
+            if match:
+                return match.group(1)
+        elif platform.system() == "Linux":
+            result = subprocess.check_output("ip route | grep default", text=True)
+            # Extragem IP-ul din comanda de rutare
+            match = re.search(r"default via (\d+\.\d+\.\d+\.\d+)", result)
+            if match:
+                return match.group(1)
+    except subprocess.CalledProcessError:
+        pass
     return None
 
 
