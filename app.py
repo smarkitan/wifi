@@ -244,5 +244,5 @@ def ping_endpoint():
             "output": str(e)
         })
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 10000))  # Folosește PORT din mediu sau 5000 implicit
+    port = int(os.environ.get('PORT', 5000))  # Folosește PORT din mediu sau 5000 implicit
     app.run(host='0.0.0.0', port=port)
