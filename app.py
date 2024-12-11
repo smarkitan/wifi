@@ -7,14 +7,14 @@ import platform
 import subprocess
 from flask import Flask, render_template, request, jsonify
 import shlex
-
 from ping3 import ping
 
 # Inițializează aplicația Flask
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "https://wifidevices.netlify.app"}})
+CORS(app)  # Permite CORS pentru toate originile
+
 
 # Funcție pentru a obține SSID-ul curent și detalii suplimentare despre rețea
 def get_wifi_details():
@@ -144,23 +144,11 @@ def get_default_gateway():
     except subprocess.CalledProcessError:
         pass
     return None
-    
-# Ruta principală pentru a returna pagina index.html
-@app.route('/')
-def index():
-    wifi_details = get_wifi_details()
-    print(wifi_details)  # Debugging line to see what's in wifi_details
-    return render_template('index.html', wifi_details=wifi_details)
 
-    
 # Ruta principală a aplicației web
 
 @app.route('/api/network-details', methods=['GET'])
 def network_details():
-
-    # Exemplu de răspuns
-    return jsonify({"message": "Network details retrieved successfully"})
-    
     # Obține detaliile rețelei Wi-Fi
     wifi_details = get_wifi_details()
 
@@ -254,8 +242,7 @@ def ping_endpoint():
             "output": str(e)
         })
 
-import os
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 10000))  # Folosește PORT din mediu sau 5000 implicit
+    port = int(os.environ.get('PORT', 5000))  # Folosește PORT din mediu sau 5000 implicit
     app.run(host='0.0.0.0', port=port)
