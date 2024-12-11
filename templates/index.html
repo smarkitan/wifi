@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ARP Scan Results</title>
+    <!-- Folosirea unei versiuni stabile pentru Font Awesome -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="app.css">
 </head>
+
 <body>
     <h1>{{ wifi_details['SSID'] }}</h1>
     <p><strong>Name:</strong> {{ wifi_details['Description'] }}</p>
@@ -22,20 +25,22 @@
 
         <div class="devices">
             {% for device in devices %}
-            <div class="device">
-                <i class="{{ device.icon_class }}"></i>
+            <div class="device" aria-labelledby="device-{{ loop.index }}">
+                <i class="{{ device.icon_class }}" aria-hidden="true"></i>
                 <div class="device-name">{{ device.hostname }}</div>
                 <div class="vendor-name">{{ device.vendor }}</div>
                 <div class="ip-address">{{ device.ip_address }}</div>
                 <div class="open-ports">
-                    <strong>Open Ports:</strong> 
+                    <strong>Open Ports:</strong>
                     {% if device.open_ports %}
                         {{ device.open_ports | join(", ") }}
                     {% else %}
                         None
                     {% endif %}
                 </div>
-                <button class="ping-button" onclick="pingDevice('{{ device.ip_address }}', this)">Ping</button>
+                <button class="ping-button" onclick="pingDevice('{{ device.ip_address }}', this)" aria-label="Ping {{ device.hostname }}">
+                    Ping
+                </button>
                 <div class="ping-result" id="ping-result-{{ loop.index }}"></div>
             </div>
             {% endfor %}
@@ -67,10 +72,19 @@
     </div>
 
     <script>
+        // Functia de ping cu indicator de incarcare si gestionare a erorilor
         function pingDevice(ip, button) {
             const resultDiv = button.nextElementSibling;
-            resultDiv.textContent = "Pinging...";
+            const loadingText = "Pinging...";
+
+            resultDiv.textContent = loadingText;
             button.disabled = true;
+            resultDiv.classList.add('loading');
+
+            // Adăugarea unui indicator de încărcare
+            const loadingIndicator = document.createElement('span');
+            loadingIndicator.classList.add('spinner');
+            resultDiv.appendChild(loadingIndicator);
 
             fetch('/ping', {
                 method: 'POST',
@@ -92,8 +106,11 @@
             })
             .finally(() => {
                 button.disabled = false;
+                loadingIndicator.remove();
+                resultDiv.classList.remove('loading');
             });
         }
     </script>
 </body>
+
 </html>
