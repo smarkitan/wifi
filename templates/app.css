@@ -1,0 +1,189 @@
+/* Stil pentru spinner */
+.spinner {
+  border: 4px solid #f3f3f3; /* Culoarea de fundal a spinner-ului */
+  border-top: 4px solid #3498db; /* Culoarea spinner-ului */
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite; /* Animația de rotație */
+  margin: 0 auto; /* Centrarea spinner-ului */
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Stil pentru elementele care sunt în starea de încărcare */
+.loading {
+  font-size: 14px;
+  color: #888;
+}
+
+/* Body */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f4f4f9;
+  text-align: center;
+  margin: 20px;
+  color: #333;
+}
+
+/* Main container for the network details */
+.network-container {
+  margin: 0 auto;
+  width: 90%;
+  max-width: 1200px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* Styling for router section */
+.router {
+  font-size: 80px;
+  color: #007BFF;
+  margin-bottom: 10px;
+}
+
+/* Vendor name styling */
+.vendor-name {
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+}
+
+/* Devices section - Flexible grid layout */
+.devices {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+/* Device card styling */
+.device {
+  text-align: center;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  width: 250px;
+  box-sizing: border-box;
+  background-color: #ffffff;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.device:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Device icons */
+.device i {
+  font-size: 50px;
+  margin-right: 10px; /* Spatiu între icon și text */
+  color: #888;
+}
+
+/* Device details */
+.device .device-name,
+.device .vendor-name,
+.device .ip-address,
+.device .open-ports {
+  margin-top: 10px;
+  font-size: 14px;
+  color: #555;
+}
+
+/* Styling for the open ports section */
+.device .open-ports {
+  color: #333;
+  font-weight: bold;
+}
+
+/* Ping button styling */
+.ping-button {
+  margin-top: 15px;
+  padding: 10px 15px;
+  font-size: 14px;
+  background-color: #007BFF;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.ping-button:hover {
+  background-color: #0056b3;
+}
+
+.ping-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Ping result display */
+.ping-result {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #555;
+  white-space: pre-wrap;
+  text-align: left;
+  max-height: 100px;
+  overflow-y: auto;
+}
+
+/* Styling for saved Wi-Fi passwords table */
+.wifi-passwords {
+  margin-top: 30px;
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.wifi-passwords h2 {
+  font-size: 20px;
+  color: #333;
+}
+
+.wifi-passwords table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.wifi-passwords table, th, td {
+  border: 1px solid #ddd;
+}
+
+.wifi-passwords th, td {
+  padding: 10px;
+  text-align: left;
+}
+
+.wifi-passwords th {
+  background-color: #007BFF;
+  color: white;
+}
+
+/* Media queries for smaller screens */
+@media (max-width: 768px) {
+  .devices {
+    flex-direction: column; /* Devices stacked on top of each other */
+    align-items: center;
+  }
+
+  .device {
+    width: 80%; /* Devices occupy more width on smaller screens */
+    margin-bottom: 20px; /* Add space between device cards */
+  }
+
+  /* Styling for the table on smaller screens */
+  .wifi-passwords table, .wifi-passwords th, .wifi-passwords td {
+    font-size: 12px; /* Reduce font size for small screens */
+  }
+}
