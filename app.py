@@ -218,9 +218,9 @@ def ping_endpoint():
         })
 
     except subprocess.CalledProcessError as e:
-        return jsonify({"status": "failure", "output": f"Ping failed: {e.stderr}"})
+        return jsonify({"status": "failure", "output": f"Ping failed: {e.stderr}"}), 500
     except Exception as e:
-        return jsonify({"status": "failure", "output": str(e)})
+        return jsonify({"status": "failure", "output": str(e)}), 500
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
