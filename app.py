@@ -34,10 +34,10 @@ def get_wifi_details():
         return {"SSID": "Unknown", "Description": "Unknown", "Band": "Unknown", "Radio Type": "Unknown", "Signal": "Unknown"}
 
 # Funcție pentru a obține detalii folosind nmap
-def run_nmap_scan(ip_range):
+def run_nmap_scan(ip_add_range_entered):
     try:
         # Comanda nmap -T4 -F pentru scanarea porturilor
-        command = ["nmap", "-T4", "-F", ip_range]
+        command = ["nmap", "-T4", "-F", ip_add_range_entered]
         result = subprocess.run(command, capture_output=True, text=True, check=True)
         
         # Parsează ieșirea comenzii nmap
