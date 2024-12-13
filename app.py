@@ -84,11 +84,8 @@ def run_nmap_scan(ip_range):
                     })
             elif "Running:" in line:
                 # Extrage OS-ul din linia "Running:"
-                # os_info = line.split("Running:")[1].strip()
-                # current_device["OS"] = os_info
                 current_device["OpSys"] = "Linux"
             elif "OS:" in line:
-                # Setează OS-ul explicit la "Windows"
                 current_device["OpSys"] = "Windows"
 
         # Adaugă ultimul dispozitiv la listă
@@ -105,12 +102,8 @@ def network_details():
     # Obține detaliile rețelei Wi-Fi
     wifi_details = get_wifi_details()
 
-    # Obține IP-ul gateway-ului implicit
-    gateway_ip = get_default_gateway()
-    if gateway_ip:
-        ip_add_range_entered = f"{gateway_ip}/24"
-    else:
-        ip_add_range_entered = "192.168.50.1/24"  # Dacă nu se poate obține gateway-ul, folosim valoarea default
+    # Folosește IP-ul default pentru gateway
+    ip_add_range_entered = "192.168.50.1/24"
 
     # Rulează scanarea nmap pe rețeaua locală
     devices = run_nmap_scan(ip_add_range_entered)
@@ -120,23 +113,6 @@ def network_details():
         "wifi_details": wifi_details,
         "devices": devices
     })
-
-# Funcție pentru a obține IP-ul gateway-ului implicit
-def get_default_gateway():
-    try:
-        if platform.system() == "Windows":
-            result = subprocess.check_output("ipconfig", text=True)
-            match = re.search(r"Default Gateway.*: (\d+\.\d+\.\d+\.\d+)", result)
-            if match:
-                return match.group(1)
-        elif platform.system() == "Linux":
-            result = subprocess.check_output("ip route | grep default", text=True)
-            match = re.search(r"default via (\d+\.\d+\.\d+\.\d+)", result)
-            if match:
-                return match.group(1)
-    except subprocess.CalledProcessError:
-        pass
-    return None
 
 @app.route('/api/ping', methods=['GET'])
 def ping_endpoint():
