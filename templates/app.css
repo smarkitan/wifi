@@ -14,13 +14,6 @@
   100% { transform: rotate(360deg); }
 }
 
-/* Stil pentru elementele care sunt în starea de încărcare */
-.loading {
-  font-size: 14px;
-  color: #888;
-}
-
-/* Body */
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #f4f4f9;
@@ -84,7 +77,6 @@ body {
 /* Device icons */
 .device i {
   font-size: 50px;
-  margin-right: 10px; /* Spatiu între icon și text */
   color: #888;
 }
 
@@ -102,12 +94,16 @@ body {
 .device .open-ports {
   color: #333;
   font-weight: bold;
+  border: none; /* Eliminarea conturului */
+  display: flex; /* Folosim flexbox pentru aliniere */
+  justify-content: center; /* Alinierea orizontală */
+  align-items: center; /* Alinierea verticală */
 }
 
 /* Ping button styling */
 .ping-button {
   margin-top: 15px;
-  padding: 10px 15px;
+  padding: 5px 10px;
   font-size: 14px;
   background-color: #007BFF;
   color: white;
@@ -137,39 +133,6 @@ body {
   overflow-y: auto;
 }
 
-/* Styling for saved Wi-Fi passwords table */
-.wifi-passwords {
-  margin-top: 30px;
-  padding: 20px;
-  background-color: #ffffff;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.wifi-passwords h2 {
-  font-size: 20px;
-  color: #333;
-}
-
-.wifi-passwords table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.wifi-passwords table, th, td {
-  border: 1px solid #ddd;
-}
-
-.wifi-passwords th, td {
-  padding: 10px;
-  text-align: left;
-}
-
-.wifi-passwords th {
-  background-color: #007BFF;
-  color: white;
-}
-
 /* Media queries for smaller screens */
 @media (max-width: 768px) {
   .devices {
@@ -181,9 +144,18 @@ body {
     width: 80%; /* Devices occupy more width on smaller screens */
     margin-bottom: 20px; /* Add space between device cards */
   }
-
-  /* Styling for the table on smaller screens */
-  .wifi-passwords table, .wifi-passwords th, .wifi-passwords td {
-    font-size: 12px; /* Reduce font size for small screens */
-  }
 }
+.device-icon-container {
+  display: flex;
+  align-items: center; /* Asigură alinierea verticală */
+  gap: 10px; /* Spațiu între elemente */
+}
+
+.device-icon {
+  margin-right: 5px; /* Spațiu între deviceIcon și osIcon */
+}
+
+.os-icon {
+  margin-right: 5px; /* Spațiu între osIcon și buton */
+}
+
