@@ -110,7 +110,7 @@ def network_details():
     if gateway_ip:
         ip_add_range_entered = f"{gateway_ip}/24"
     else:
-        ip_add_range_entered = "192.168.0.1/24"  # Dacă nu se poate obține gateway-ul, folosim valoarea default
+        ip_add_range_entered = "192.168.50.1/24"  # Dacă nu se poate obține gateway-ul, folosim valoarea default
 
     # Rulează scanarea nmap pe rețeaua locală
     devices = run_nmap_scan(ip_add_range_entered)
