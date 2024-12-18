@@ -27,6 +27,10 @@ def scan_network(network_ip):
         devices.append({'ip': received.psrc, 'mac': received.hwsrc})
 
     return devices
+    
+except Exception as e:
+        print(f"Error during network scan: {e}")
+    return devices
 
 @app.route('/api/network-details', methods=['GET'])
 def network_details():
