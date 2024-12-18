@@ -1,6 +1,6 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
-from scapy.all import ARP, Ether, srp
+
 
 app = Flask(__name__)
 
