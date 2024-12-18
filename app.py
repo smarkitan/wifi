@@ -43,6 +43,9 @@ def network_details():
     return jsonify({
         "devices": devices
     })
+@app.route('/')
+def home():
+    return "Aplicația este live!"
 
 
 if __name__ == '__main__':
